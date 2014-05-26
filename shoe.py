@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 '''
-	A simple little script to convert Local Shared Objects to json than back again for easy editing.
+	shoe - A simple little script to convert Local Shared Objects to json then back again for easy editing.
 	Copyright (C) 2014  Daemon Lee Schmidt
 
 	This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,11 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-#import the required jibberjabs
-import sys
+
+'''import the required jibberjabs'''
+import mimetypes
 import json
+import argparse
 from pyamf import sol
 import __future__
 
@@ -44,9 +46,23 @@ def jsonToSol(infile, AMFversion = 3):
 
 '''shoe itself'''
 
-if sys.argv[1].endswith(".sol"):
-	solToJson(sys.argv[1])
-elif sys.argv[1].endswith(".json"):
-	jsonToSol(sys.argv[1])
+'''Parser related things'''
+parser = argparse.ArgumentParser(description="A simple little script to convert Local Shared Objects to json then back again for easy editing.")
+amfEncoding = parser.add_mutually_exclusive_group()
+parser.add_argument("infile", help="a .sol or .json file for converting")
+amfEncoding.add_argument("-3", "--amf3", action="store_true", help="enable AMF3 encoding (default)")
+amfEncoding.add_argument("-0", "--amf0", action="store_true", help="enable AMF0 encoding")
+
+args = parser.parse_args()
+
+'''The science'''
+if args.infile.endswith(".sol"):
+	solToJson(args.infile)
+elif args.amf3 and mimetypes.guess_type(args.infile) == ('application/json', None):
+	jsonToSol(args.infile, 3)
+elif args.amf0 and mimetypes.guess_type(args.infile) == ('application/json', None):
+	jsonToSol(args.infile, 0)
+elif mimetypes.guess_type(args.infile) == ('application/json', None):
+	jsonToSol(args.infile, 3)
 else:
-	print('Make sure the file extensions are either .json or .sol!')
+	print("Something terrble happened! Most likely with the mimetype or extension of the file you put in!")
