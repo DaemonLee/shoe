@@ -21,12 +21,12 @@
 import __future__
 import os
 import platform
+import subprocess
 import mimetypes
 import json
 import argparse
 
 from pyamf import sol
-import subprocess
 
 
 class insole:
